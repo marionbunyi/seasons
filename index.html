@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Season Adventure</title>
+
+<style>
+:root {
+  --ink:#263b55;
+  --blue:#bfe6fa;
+  --pink:#f8c7d8;
+  --yellow:#ffe69a;
+  --green:#c8edc9;
+  --purple:#d8ccfa;
+}
+
+* { box-sizing:border-box; }
+
+body {
+  margin:0;
+  min-height:100vh;
+  font-family:"TW Cen MT","Tw Cen MT","Century Gothic",Arial,sans-serif;
+  color:var(--ink);
+  background:#eaf5fb;
+}
+
+button { font:inherit; cursor:pointer; }
+
+.screen {
+  display:none;
+  min-height:100vh;
+}
+
+.screen.active { display:flex; }
+
+/* HOMEPAGE */
+
+#home {
+  position:relative;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  background:linear-gradient(135deg,#c9edff,#fff0f5 55%,#fff2c8);
+}
+
+#homeVideo {
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  opacity:.25;
+  pointer-events:none;
+}
+
+.home-overlay {
+  position:absolute;
+  inset:0;
+  background:linear-gradient(135deg,#ddf5ff88,#ffedf4aa);
+  pointer-events:none;
+}
+
+.home-content {
+  position:relative;
+  z-index:2;
+  width:min(1400px,98vw);
+  padding:35px 18px;
+  text-align:center;
+}
+
+.home-title {
+  font-size:clamp(42px,6vw,76px);
+  font-weight:1000;
+  letter-spacing:1px;
+  margin:0 0 8px;
+  color:#385477;
+  text-shadow:3px 4px white;
+}
+
+.season-grid {
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:clamp(10px,2vw,25px);
+  align-items:center;
+  justify-items:center;
+}
+
+.season-button {
+  width:100%;
+  max-width:310px;
+  aspect-ratio:1;
+  border:0;
+  border-radius:50%;
+  padding:0;
+  background:transparent;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:transform .2s;
+  filter:drop-shadow(0 12px 12px #59718a45);
+}
+
+.season-button:hover {
+  transform:scale(1.09) rotate(-2deg);
+}
+
+.season-button img {
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  pointer-events:none;
+}
+
+.season-name { display:none; }
+
+/* MUSIC */
+
+.music-toggle {
+  position:fixed;
+  z-index:99999;
+  top:14px;
+  right:16px;
+  border:2px solid white;
+  background:#ffffffdf;
+  color:#31516f;
+  border-radius:999px;
+  padding:10px 16px;
+  font-weight:900;
+  font-size:16px;
+  box-shadow:0 4px 14px #344b6428;
+}
+
+/* PICTURE PREVIEW */
+
+#intro {
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  background:radial-gradient(circle at top left,#e8f7ff,#fdf1f6 60%,#fff8df);
+}
+
+.intro-card {
+  width:min(950px,94vw);
+  min-height:min(820px,92vh);
+  background:#ffffffed;
+  border:5px solid white;
+  border-radius:32px;
+  box-shadow:0 18px 55px #344b6422;
+  padding:25px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  gap:12px;
+}
+
+.intro-title {
+  font-size:clamp(32px,5vw,58px);
+  margin:0;
+  color:#365f88;
+}
+
+.intro-picture {
+  width:min(68vw,590px);
+  height:min(60vh,490px);
+  object-fit:contain;
+  animation:picturePop .55s ease-out;
+}
+
+.intro-caption {
+  font-size:clamp(20px,2.5vw,29px);
+  font-weight:900;
+  margin:0;
+}
+
+@keyframes picturePop {
+  0% { opacity:0;transform:scale(.72); }
+  70% { opacity:1;transform:scale(1.05); }
+  100% { transform:scale(1); }
+}
+
+/* GAME SCREEN */
+
+#game {
+  padding:18px;
+  align-items:center;
+  justify-content:center;
+  background:radial-gradient(circle at top left,#e8f7ff,#fdf1f6 60%,#fff8df);
+}
+
+.game-shell {
+  width:min(1500px,100%);
+  min-height:min(930px,calc(100vh - 36px));
+  background:#ffffffed;
+  border:5px solid white;
+  border-radius:30px;
+  box-shadow:0 18px 55px #344b6422;
+  padding:clamp(14px,1.8vw,25px);
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  position:relative;
+  overflow:hidden;
+}
+
+.topbar {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  padding-right:110px;
+}
+
+.season-label {
+  font-size:clamp(25px,3vw,40px);
+  font-weight:1000;
+  margin:0;
+}
+
+.progress {
+  font-weight:900;
+  background:#f0f5fb;
+  padding:9px 15px;
+  border-radius:999px;
+}
+
+.timer {
+  font-variant-numeric:tabular-nums;
+  font-size:clamp(20px,2vw,27px);
+  font-weight:1000;
+  background:#fff4d4;
+  border:2px solid #f6d57b;
+  border-radius:15px;
+  padding:9px 15px;
+  white-space:nowrap;
+}
+
+.timer.frozen {
+  background:#e4f7e6;
+  border-color:#9bd2a1;
+  color:#236b35;
+  box-shadow:0 0 0 4px #d6f1d8;
+}
+
+/* SENTENCE AND REFERENCE PICTURE */
+
+.instruction-row {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  min-height:112px;
+  background:linear-gradient(100deg,#f4f8ff,#fff8f1);
+  border:2px solid #e5edf6;
+  border-radius:22px;
+  padding:10px 16px;
+}
+
+.pattern {
+  font-size:clamp(19px,2.15vw,30px);
+  font-weight:1000;
+  line-height:1.5;
+  flex:1;
+}
+
+.blank {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:100px;
+  min-height:39px;
+  padding:2px 9px;
+  margin:2px 3px;
+  border-bottom:4px solid #6d91ba;
+  color:#315f8b;
+  background:#fff;
+  border-radius:9px;
+  vertical-align:middle;
+}
+
+.blank.filled {
+  border:2px solid #8db9df;
+  background:#eaf6ff;
+  min-width:unset;
+}
+
+.reference-box {
+  width:130px;
+  flex:0 0 130px;
+  height:100px;
+  border-radius:16px;
+  background:white;
+  border:2px solid #e5edf6;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+
+.reference-box img {
+  width:100%;
+  height:100%;
+  object-fit:contain;
+}
+
+/* WORD RECTANGLES */
+
+.word-pool {
+  position:relative;
+  flex:1;
+  min-height:390px;
+  border:4px solid #c8dff1;
+  border-radius:25px;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 15% 20%,#fff 0 2px,transparent 3px),
+    radial-gradient(circle at 80% 70%,#fff 0 2px,transparent 3px),
+    linear-gradient(135deg,#edf9ff,#fff6fb 55%,#fff9e9);
+  box-shadow:
+    inset 0 0 0 7px #ffffff9c,
+    inset 0 0 30px #9bb9d322;
+  display:block;
+  padding:14px;
+}
+
+.word-chip {
+  position:absolute;
+  z-index:2;
+  border:2px solid #c8d8e8;
+  background:#fff;
+  color:#294b6b;
+  border-radius:17px;
+  padding:8px 9px;
+  font-weight:1000;
+  font-size:clamp(29px,2.7vw,40px);
+  line-height:1.12;
+  box-shadow:0 5px 0 #dce7f0,0 7px 13px #516b8420;
+  text-align:center;
+  width:calc(23% - 14px);
+  max-width:calc(23% - 14px);
+  min-height:52px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  white-space:normal;
+  overflow-wrap:anywhere;
+  transition:left 220ms ease,top 220ms ease,transform 220ms ease,opacity .2s;
+  will-change:left,top,transform;
+}
+
+.word-chip:nth-child(3n) {
+  background:#fff6d9;
+  border-color:#efd78b;
+}
+
+.word-chip:nth-child(3n+1) {
+  background:#eff9ff;
+  border-color:#b9d9ee;
+}
+
+.word-chip:nth-child(3n+2) {
+  background:#fff0f6;
+  border-color:#edc4d5;
+}
+
+.word-chip.used {
+  opacity:.25;
+  pointer-events:none;
+  text-decoration:line-through;
+}
+
+.word-pool.jumbling .word-chip {
+  pointer-events:none;
+}
+
+.word-pool.ready .word-chip {
+  cursor:pointer;
+}
+
+.word-pool.ready .word-chip:hover {
+  transform:scale(1.05) rotate(0deg) !important;
+  z-index:5;
+}
+
+.feedback {
+  min-height:35px;
+  text-align:center;
+  font-size:clamp(22px,2.6vw,36px);
+  font-weight:1000;
+  color:#208343;
+}
+
+.feedback.bad { color:#c14c58; }
+
+.controls {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+.action-btn {
+  border:0;
+  border-radius:15px;
+  padding:12px 27px;
+  font-size:19px;
+  font-weight:1000;
+  box-shadow:0 4px 0 #00000018;
+  transition:transform .12s,filter .12s;
+}
+
+.action-btn:hover {
+  transform:translateY(-2px);
+  filter:brightness(1.03);
+}
+
+.check-btn { background:#a9d9ad;color:#214d2b; }
+.next-btn { background:#ffdc83;color:#684900; }
+.home-btn { background:#b9d9f4;color:#234b70; }
+.clear-btn { background:#f4d6e3;color:#75405a; }
+
+.action-btn:disabled {
+  opacity:.4;
+  cursor:not-allowed;
+  transform:none;
+}
+
+/* CORRECT ANSWER */
+
+#correctFlash {
+  position:absolute;
+  inset:0;
+  z-index:20;
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:14px;
+  pointer-events:auto;
+  background:#fff9d9d9;
+}
+
+.correct-word {
+  font-size:clamp(70px,13vw,150px);
+  font-weight:1000;
+  color:#20a34a;
+  text-shadow:5px 7px white,0 10px 22px #386b3d44;
+  transform:rotate(-7deg);
+  animation:correctPulse .55s ease-in-out infinite alternate;
+}
+
+.correct-time {
+  font-size:clamp(27px,4vw,48px);
+  font-weight:1000;
+  color:#294b6b;
+  background:#fff;
+  padding:10px 25px;
+  border:3px solid #c5e1f2;
+  border-radius:18px;
+  box-shadow:0 6px 0 #dce7f0;
+  animation:timePop .5s ease-out;
+}
+
+.correct-next {
+  font-size:clamp(22px,2.5vw,30px);
+  padding:14px 38px;
+  border:0;
+  border-radius:18px;
+  background:#ffdc83;
+  color:#684900;
+  font-weight:1000;
+  box-shadow:0 6px 0 #e8bd55;
+  cursor:pointer;
+  pointer-events:auto;
+}
+
+@keyframes timePop {
+  from { opacity:0;transform:scale(.75); }
+  to { opacity:1;transform:scale(1); }
+}
+
+@keyframes correctPulse {
+  from { transform:scale(.88) rotate(-7deg); }
+  to { transform:scale(1.08) rotate(5deg); }
+}
+
+.confetti {
+  position:absolute;
+  top:-20px;
+  width:11px;
+  height:17px;
+  animation:confettiFall 1.8s linear forwards;
+  opacity:.95;
+}
+
+@keyframes confettiFall {
+  to { transform:translateY(110vh) rotate(800deg);opacity:.9; }
+}
+
+/* RESULTS */
+
+.finish {
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  background:linear-gradient(140deg,#e9f8ff,#fff0f5,#fff5d9);
+  padding:25px;
+}
+
+.finish-card {
+  background:white;
+  border:5px solid #fff;
+  border-radius:30px;
+  padding:clamp(25px,5vw,55px);
+  width:min(850px,94vw);
+  box-shadow:0 15px 50px #314c6722;
+}
+
+.finish-card h1 {
+  font-size:clamp(34px,5vw,58px);
+  margin:0 0 10px;
+}
+
+.finish-card p {
+  font-size:20px;
+  line-height:1.5;
+}
+
+.result-time {
+  font-size:clamp(36px,5vw,55px);
+  font-weight:1000;
+  color:#236b35;
+  margin:15px;
+}
+
+.result-list {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px;
+  margin:20px 0;
+}
+
+.result-item {
+  background:#f2f8ff;
+  border-radius:13px;
+  padding:10px;
+  font-size:18px;
+  font-weight:900;
+}
+
+.result-item strong {
+  display:block;
+  font-size:24px;
+  color:#315f8b;
+}
+
+.fastest {
+  background:#fff1c9;
+  border:2px solid #f3d16d;
+}
+
+.winner-note {
+  font-size:17px;
+  color:#6d7c8d;
+}
+
+/* SMALL SCREENS */
+
+@media(max-width:850px) {
+  .season-grid {
+    grid-template-columns:repeat(2,minmax(120px,1fr));
+    gap:12px;
+  }
+
+  .season-button { max-width:280px; }
+  .topbar { padding-right:0; }
+
+  .instruction-row { align-items:flex-start; }
+
+  .reference-box {
+    width:100px;
+    flex-basis:100px;
+    height:85px;
+  }
+
+  .word-pool {
+    min-height:520px;
+    padding:10px;
+  }
+
+  .word-chip {
+    width:calc(38% - 10px);
+    max-width:calc(38% - 10px);
+    font-size:27px;
+    padding:8px 7px;
+  }
+
+  .game-shell { min-height:calc(100vh - 24px); }
+  #game { padding:12px; }
+}
+
+@media(max-width:500px) {
+  .instruction-row { flex-direction:column-reverse; }
+
+  .reference-box {
+    align-self:flex-end;
+  }
+
+  .word-pool {
+    min-height:560px;
+    padding:8px;
+  }
+
+  .word-chip {
+    width:calc(38% - 8px);
+    max-width:calc(38% - 8px);
+    font-size:25px;
+    padding:7px 6px;
+    min-height:48px;
+  }
+
+  .result-list { grid-template-columns:1fr; }
+  .season-button { max-width:220px; }
+  .home-title { font-size:40px; }
+}
+</style>
+</head>
+
+<body>
+
+<button class="music-toggle" id="musicToggle" type="button" aria-pressed="false">
+  ♫ Music: OFF
+</button>
+
+<audio
+  id="backgroundMusic"
+  src="https://raw.githubusercontent.com/marionbunyi/seasons/main/background%20music.mp3"
+  loop
+  preload="auto">
+</audio>
+
+<!-- HOMEPAGE -->
+
+<section id="home" class="screen active">
+
+  <video id="homeVideo" autoplay muted loop playsinline>
+    <source
+      src="https://raw.githubusercontent.com/marionbunyi/seasons/main/homepage.mp4"
+      type="video/mp4">
+  </video>
+
+  <div class="home-overlay"></div>
+
+  <div class="home-content">
+    <h1 class="home-title">SEASON ADVENTURE</h1>
+    <div class="season-grid" id="seasonGrid"></div>
+  </div>
+
+</section>
+
+<!-- PICTURE PREVIEW -->
+
+<section id="intro" class="screen">
+
+  <div class="intro-card">
+    <h1 class="intro-title" id="introTitle">WINTER!</h1>
+
+    <img
+      id="introImage"
+      class="intro-picture"
+      alt="Season activity preview">
+
+    <p class="intro-caption" id="introCaption">
+      Activity 1 of 4
+    </p>
+  </div>
+
+</section>
+
+<!-- GAME -->
+
+<section id="game" class="screen">
+
+  <div class="game-shell">
+
+    <div class="topbar">
+      <h1 class="season-label" id="seasonTitle">WINTER ADVENTURE</h1>
+      <div class="progress" id="progress">Activity 1 of 4</div>
+      <div class="timer" id="timer">⏱ 00:00</div>
+    </div>
+
+    <div class="instruction-row">
+
+      <div class="pattern">
+        I like <span class="blank" data-slot="0">________</span>
+        because it's <span class="blank" data-slot="1">________</span>.
+        <br>
+        I can <span class="blank" data-slot="2">________________</span>.
+      </div>
+
+      <div class="reference-box">
+        <img id="activityImage" alt="Activity picture reference">
+      </div>
+
+    </div>
+
+    <div id="wordPool" class="word-pool jumbling"></div>
+
+    <div class="feedback" id="feedback" aria-live="polite"></div>
+
+    <div class="controls">
+      <button class="action-btn clear-btn" id="clearBtn">Clear</button>
+      <button class="action-btn check-btn" id="checkBtn">✓ Check</button>
+      <button class="action-btn next-btn" id="nextBtn" disabled>Next ➜</button>
+      <button class="action-btn home-btn" id="homeBtn">⌂ Home</button>
+    </div>
+
+    <div id="correctFlash">
+      <div class="correct-word">CORRECT!</div>
+      <div class="correct-time" id="correctTime">Finished in 00:00</div>
+      <button class="correct-next" id="correctNextBtn" type="button">
+        Next ➜
+      </button>
+    </div>
+
+  </div>
+
+</section>
+
+<!-- RESULTS -->
+
+<section id="finish" class="screen finish">
+
+  <div class="finish-card">
+
+    <h1 id="finishTitle">Season Complete!</h1>
+
+    <p id="finishMessage">Fantastic work!</p>
+
+    <div class="result-time" id="totalTime">Total: 00:00</div>
+
+    <p class="winner-note">
+      Your activity times are recorded below. The shortest time is the fastest!
+    </p>
+
+    <div class="result-list" id="finishDetail"></div>
+
+    <div class="controls">
+      <button class="action-btn home-btn" id="finishHomeBtn">
+        ⌂ Homepage
+      </button>
+
+      <button class="action-btn next-btn" id="replayBtn">
+        Play Again ↻
+      </button>
+    </div>
+
+  </div>
+
+</section>
+
+<script>
+const BASE = "https://raw.githubusercontent.com/marionbunyi/seasons/main/";
+const asset = name => encodeURI(BASE + name);
+
+const seasons = {
+  winter: {
+    label:"Winter",
+    button:"winter button.png",
+    activities:[
+      {file:"winter drink hot chocolate.png",action:"drink hot chocolate"},
+      {file:"winter go ice skating.png",action:"go ice skating"},
+      {file:"winter go skiing.png",action:"go skiing"},
+      {file:"winter make a snowman.png",action:"make a snowman"}
+    ]
+  },
+
+  spring: {
+    label:"Spring",
+    button:"spring button.png",
+    activities:[
+      {file:"spring fly a kite.png",action:"fly a kite"},
+      {file:"spring have a picnic.png",action:"have a picnic"},
+      {file:"spring ride a bike.png",action:"ride a bike"},
+      {file:"spring take pictures of flowers.png",action:"take pictures of flowers"}
+    ]
+  },
+
+  summer: {
+    label:"Summer",
+    button:"summer button.png",
+    activities:[
+      {file:"summer eat ice cream.png",action:"eat ice cream"},
+      {file:"summer go swimming.png",action:"go swimming"},
+      {file:"summer play beach volleyball.png",action:"play beach volleyball"},
+      {file:"summer go snorkeling.png",action:"go snorkeling"}
+    ]
+  },
+
+  autumn: {
+    label:"Fall",
+    button:"autumn button.png",
+    activities:[
+      {file:"autumn collect leaves.png",action:"collect leaves"},
+      {file:"autumn go camping.png",action:"go camping"},
+      {file:"autumn go hiking.png",action:"go hiking"},
+      {file:"autumn pick apples.png",action:"pick apples"}
+    ]
+  }
+};
+
+const temperatures = {
+  winter:"cold",
+  spring:"warm",
+  summer:"hot",
+  autumn:"cool"
+};
+
+const seasonsOrder = ["winter","spring","summer","autumn"];
+const seasonWords = ["winter","spring","summer","autumn"];
+const temperatureWords = ["cold","warm","hot","cool"];
+
+const $ = id => document.getElementById(id);
+
+const home = $("home");
+const intro = $("intro");
+const game = $("game");
+const finish = $("finish");
+
+let currentSeason = "winter";
+let activityIndex = 0;
+let chosen = [null,null,null];
+let usedWords = new Set();
+let startedAt = 0;
+let ticker = null;
+let completedTimes = [];
+let isCorrect = false;
+let lastSeason = "winter";
+let introTimer = null;
+let jumbleTimer = null;
+let jumbleEndTimer = null;
+let wordsAreMoving = false;
+
+/* SCREEN CONTROL */
+
+function showScreen(which) {
+  [home,intro,game,finish].forEach(screen => {
+    screen.classList.remove("active");
+  });
+
+  which.classList.add("active");
+}
+
+/* SHUFFLE */
+
+function shuffle(array) {
+  const result = [...array];
+
+  for (let i=result.length-1;i>0;i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [result[i],result[j]] = [result[j],result[i]];
+  }
+
+  return result;
+}
+
+/* HOMEPAGE */
+
+function makeHome() {
+  const grid = $("seasonGrid");
+  grid.innerHTML = "";
+
+  seasonsOrder.forEach(key => {
+    const season = seasons[key];
+
+    const button = document.createElement("button");
+    const image = document.createElement("img");
+
+    button.className = "season-button";
+    button.setAttribute("aria-label",season.label);
+
+    image.src = asset(season.button);
+    image.alt = season.label;
+
+    image.onerror = () => {
+      image.style.visibility = "hidden";
+    };
+
+    button.appendChild(image);
+
+    button.addEventListener("click",() => {
+      startSeason(key);
+    });
+
+    grid.appendChild(button);
+  });
+}
+
+/* SOUND EFFECTS */
+
+function playTone(freq=660,duration=.18,type="sine",volume=.12) {
+  try {
+    const context = new (window.AudioContext || window.webkitAudioContext)();
+
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+
+    oscillator.type = type;
+    oscillator.frequency.value = freq;
+    gain.gain.value = volume;
+
+    oscillator.connect(gain);
+    gain.connect(context.destination);
+
+    oscillator.start();
+
+    gain.gain.exponentialRampToValueAtTime(
+      .001,
+      context.currentTime + duration
+    );
+
+    oscillator.stop(context.currentTime + duration);
+
+    oscillator.onended = () => context.close();
+
+  } catch(error) {}
+}
+
+function playCorrectSong() {
+  const notes = [659,784,988,1318,1175,1318];
+
+  notes.forEach((note,index) => {
+    setTimeout(() => {
+      playTone(note,.22,"triangle",.13);
+    },index*145);
+  });
+}
+
+function soundWrong() {
+  playTone(220,.22,"triangle",.08);
+}
+
+/* BACKGROUND MUSIC */
+
+let musicOn = false;
+
+const bgm = $("backgroundMusic");
+bgm.volume = .38;
+
+async function setMusic(on) {
+  if (on) {
+    try {
+      await bgm.play();
+
+      musicOn = true;
+      $("musicToggle").textContent = "♫ Music: ON";
+      $("musicToggle").setAttribute("aria-pressed","true");
+
+    } catch(error) {
+      musicOn = false;
+      $("musicToggle").textContent = "♫ Music: TAP TO PLAY";
+      $("musicToggle").setAttribute("aria-pressed","false");
+    }
+
+  } else {
+    bgm.pause();
+    musicOn = false;
+    $("musicToggle").textContent = "♫ Music: OFF";
+    $("musicToggle").setAttribute("aria-pressed","false");
+  }
+}
+
+$("musicToggle").addEventListener("click",() => {
+  setMusic(!musicOn);
+});
+
+/* STOP ALL ACTIVITY TIMERS */
+
+function stopActivityTimers() {
+  clearTimeout(introTimer);
+  clearInterval(ticker);
+  clearInterval(jumbleTimer);
+  clearTimeout(jumbleEndTimer);
+
+  ticker = null;
+  jumbleTimer = null;
+  jumbleEndTimer = null;
+  wordsAreMoving = false;
+}
+
+/* PICTURE PREVIEW: 5 SECONDS FOR EVERY ACTIVITY */
+
+function previewCurrentActivity() {
+  stopActivityTimers();
+
+  const season = seasons[currentSeason];
+  const activity = season.activities[activityIndex];
+
+  $("introTitle").textContent = season.label.toUpperCase() + "!";
+  $("introImage").src = asset(activity.file);
+  $("introImage").alt = activity.action;
+  $("introCaption").textContent =
+    `Activity ${activityIndex + 1} of 4`;
+
+  showScreen(intro);
+
+  // Keep the picture on screen for five seconds every time.
+  introTimer = setTimeout(() => {
+    loadActivity();
+  },5000);
+}
+
+/* START A SEASON */
+
+function startSeason(key) {
+  currentSeason = key;
+  lastSeason = key;
+  activityIndex = 0;
+  completedTimes = [];
+
+  previewCurrentActivity();
+}
+
+/* TIMER */
+
+function formatTime(milliseconds) {
+  const totalSeconds = Math.floor(Math.max(0,milliseconds)/1000);
+  const minutes = Math.floor(totalSeconds/60);
+  const seconds = totalSeconds%60;
+
+  return `${String(minutes).padStart(2,"0")}:${String(seconds).padStart(2,"0")}`;
+}
+
+function startTimer() {
+  clearInterval(ticker);
+
+  startedAt = performance.now();
+
+  $("timer").classList.remove("frozen");
+  $("timer").textContent = "⏱ 00:00";
+
+  ticker = setInterval(() => {
+    $("timer").textContent =
+      "⏱ " + formatTime(performance.now()-startedAt);
+  },250);
+}
+
+function stopTimer() {
+  clearInterval(ticker);
+  ticker = null;
+
+  return performance.now()-startedAt;
+}
+
+/* LOAD SENTENCE-BUILDING ACTIVITY */
+
+function loadActivity() {
+  clearInterval(ticker);
+  clearInterval(jumbleTimer);
+  clearTimeout(jumbleEndTimer);
+
+  const season = seasons[currentSeason];
+  const activity = season.activities[activityIndex];
+
+  chosen = [null,null,null];
+  usedWords = new Set();
+  isCorrect = false;
+
+  $("seasonTitle").textContent =
+    season.label.toUpperCase() + " ADVENTURE";
+
+  $("seasonTitle").style.color =
+    currentSeason === "winter" ? "#3f769d" :
+    currentSeason === "spring" ? "#bd6586" :
+    currentSeason === "summer" ? "#ad7917" : "#9a6337";
+
+  $("progress").textContent =
+    `Activity ${activityIndex+1} of 4`;
+
+  $("activityImage").src = asset(activity.file);
+  $("activityImage").alt = activity.action;
+
+  $("feedback").textContent = "";
+  $("feedback").className = "feedback";
+
+  $("correctFlash").style.display = "none";
+
+  document.querySelectorAll(".blank").forEach((slot,index) => {
+    slot.textContent =
+      index === 2 ? "________________" : "________";
+
+    slot.classList.remove("filled");
+
+    slot.onclick = () => removeSlot(index);
+  });
+
+  $("checkBtn").disabled = false;
+  $("nextBtn").disabled = true;
+  $("clearBtn").disabled = false;
+
+  showScreen(game);
+
+  renderPool(activity.action);
+
+  // The answering timer begins after the five-second preview.
+  startTimer();
+
+  // Words move for three seconds, then stop.
+  startWordJumble();
+}
+
+/* WORD CHOICES */
+
+function renderPool(correctActivity) {
+  const pool = $("wordPool");
+
+  pool.innerHTML = "";
+  pool.classList.remove("ready");
+  pool.classList.add("jumbling");
+
+  // Add one extra activity verb as a distractor.
+  // It is chosen from the other activities in the same season.
+  const extraVerb = shuffle(
+    seasons[currentSeason].activities
+      .filter(activity => activity.action !== correctActivity)
+      .map(activity => activity.action)
+  )[0];
+
+  const words = shuffle([
+    ...seasonWords,
+    ...temperatureWords,
+    correctActivity,
+    extraVerb
+  ]);
+
+  words.forEach(word => {
+    const button = document.createElement("button");
+
+    button.className = "word-chip";
+    button.textContent = word;
+    button.dataset.word = word;
+
+    button.addEventListener("click",() => {
+      if (isCorrect || wordsAreMoving || !pool.classList.contains("ready")) {
+        return;
+      }
+
+      if (usedWords.has(word)) return;
+
+      const emptySlot = chosen.findIndex(value => value === null);
+
+      if (emptySlot === -1) return;
+
+      chosen[emptySlot] = word;
+      usedWords.add(word);
+
+      button.classList.add("used");
+
+      updateSlots();
+
+      playTone(520,.07,"sine",.05);
+    });
+
+    pool.appendChild(button);
+  });
+}
+
+/* WORDS MOVE AROUND THE ENTIRE BOX FOR THREE SECONDS, THEN FREEZE */
+
+function startWordJumble() {
+  const pool = $("wordPool");
+  const chips = [...pool.querySelectorAll(".word-chip")];
+
+  wordsAreMoving = true;
+
+  pool.classList.add("jumbling");
+  pool.classList.remove("ready");
+
+  function moveWords() {
+    const poolWidth = pool.clientWidth - 28;
+    const poolHeight = pool.clientHeight - 28;
+    const isMobile = window.innerWidth <= 850;
+    const columns = isMobile ? 2 : 3;
+    const rows = isMobile ? 5 : 4;
+    const cellWidth = poolWidth / columns;
+    const cellHeight = poolHeight / rows;
+
+    // Shuffle the available spaces so every word travels to a new area.
+    const spaces = shuffle(
+      Array.from({length:columns * rows},(_,index) => index)
+    ).slice(0,chips.length);
+
+    chips.forEach((chip,index) => {
+      const space = spaces[index];
+      const column = space % columns;
+      const row = Math.floor(space / columns);
+
+      const x = 14 + column * cellWidth +
+        (cellWidth - chip.offsetWidth) / 2;
+      const y = 14 + row * cellHeight +
+        (cellHeight - chip.offsetHeight) / 2;
+
+      const rotate = (Math.random() * 8 - 4).toFixed(1);
+
+      chip.style.left = Math.max(4,x) + "px";
+      chip.style.top = Math.max(4,y) + "px";
+      chip.style.transform = `rotate(${rotate}deg)`;
+    });
+  }
+
+  // Place words in their first random arrangement.
+  chips.forEach(chip => {
+    chip.style.transition = "none";
+  });
+
+  moveWords();
+
+  requestAnimationFrame(() => {
+    chips.forEach(chip => {
+      chip.style.transition =
+        "left 220ms ease, top 220ms ease, transform 220ms ease";
+    });
+  });
+
+  // Keep rearranging the words throughout the three-second jumble.
+  jumbleTimer = setInterval(moveWords,300);
+
+  jumbleEndTimer = setTimeout(() => {
+    clearInterval(jumbleTimer);
+
+    jumbleTimer = null;
+    jumbleEndTimer = null;
+
+    // Freeze the words in their final positions.
+    chips.forEach(chip => {
+      chip.style.transition = "none";
+    });
+
+    wordsAreMoving = false;
+
+    pool.classList.remove("jumbling");
+    pool.classList.add("ready");
+  },3000);
+}
+
+/* SENTENCE SLOTS */
+
+function updateSlots() {
+  document.querySelectorAll(".blank").forEach((slot,index) => {
+    slot.textContent =
+      chosen[index] ||
+      (index === 2 ? "________________" : "________");
+
+    slot.classList.toggle("filled",!!chosen[index]);
+  });
+}
+
+function removeSlot(index) {
+  if (isCorrect || wordsAreMoving) return;
+
+  if (!chosen[index]) return;
+
+  const oldWord = chosen[index];
+
+  chosen[index] = null;
+  usedWords.delete(oldWord);
+
+  updateSlots();
+
+  [...$("wordPool").querySelectorAll(".word-chip")].forEach(button => {
+    if (button.dataset.word === oldWord) {
+      button.classList.remove("used");
+    }
+  });
+}
+
+function clearAnswer() {
+  if (isCorrect || wordsAreMoving) return;
+
+  chosen = [null,null,null];
+  usedWords.clear();
+
+  updateSlots();
+
+  $("wordPool").querySelectorAll(".word-chip").forEach(button => {
+    button.classList.remove("used");
+  });
+
+  $("feedback").textContent = "";
+}
+
+/* CONFETTI */
+
+function makeConfetti() {
+  const layer = $("correctFlash");
+
+  layer.querySelectorAll(".confetti").forEach(item => {
+    item.remove();
+  });
+
+  const colors = [
+    "#ff6384",
+    "#ffd166",
+    "#06d6a0",
+    "#4dabf7",
+    "#b388eb"
+  ];
+
+  for (let i=0;i<90;i++) {
+    const piece = document.createElement("i");
+
+    piece.className = "confetti";
+    piece.style.left = Math.random()*100 + "%";
+    piece.style.background = colors[i%colors.length];
+    piece.style.animationDelay = Math.random()*.7 + "s";
+    piece.style.transform =
+      `rotate(${Math.random()*360}deg)`;
+
+    layer.appendChild(piece);
+  }
+
+  layer.style.display = "flex";
+
+  setTimeout(() => {
+    layer.querySelectorAll(".confetti").forEach(item => {
+      item.remove();
+    });
+  },2400);
+}
+
+/* CHECK ANSWER */
+
+function checkAnswer() {
+  if (isCorrect || wordsAreMoving) return;
+
+  if (chosen.some(value => value === null)) {
+    $("feedback").textContent =
+      "Choose a word for every blank!";
+
+    $("feedback").className = "feedback bad";
+
+    soundWrong();
+    return;
+  }
+
+  const activity =
+    seasons[currentSeason].activities[activityIndex];
+
+  const correctAnswer = [
+    currentSeason,
+    temperatures[currentSeason],
+    activity.action
+  ];
+
+  const answerIsCorrect = chosen.every(
+    (value,index) => value === correctAnswer[index]
+  );
+
+  if (answerIsCorrect) {
+    const elapsed = stopTimer();
+
+    completedTimes.push(elapsed);
+    isCorrect = true;
+
+    $("timer").textContent =
+      "🏁 " + formatTime(elapsed);
+
+    $("timer").classList.add("frozen");
+
+    $("correctTime").textContent =
+      "Finished in " + formatTime(elapsed);
+
+    $("feedback").textContent = "";
+
+    $("checkBtn").disabled = true;
+    $("clearBtn").disabled = true;
+    $("nextBtn").disabled = true;
+
+    makeConfetti();
+    playCorrectSong();
+
+  } else {
+    $("feedback").textContent =
+      "Not quite! Try again. 😊";
+
+    $("feedback").className = "feedback bad";
+
+    soundWrong();
+  }
+}
+
+/* NEXT ACTIVITY */
+
+function nextActivity() {
+  if (!isCorrect) return;
+
+  if (activityIndex < 3) {
+    activityIndex++;
+
+    // Every new activity starts with its own five-second picture preview.
+    previewCurrentActivity();
+
+  } else {
+    showSeasonResult();
+  }
+}
+
+/* RESULTS */
+
+function showSeasonResult() {
+  stopActivityTimers();
+
+  const total = completedTimes.reduce(
+    (sum,time) => sum+time,0
+  );
+
+  const fastest = Math.min(...completedTimes);
+
+  $("finishTitle").textContent =
+    seasons[currentSeason].label + " Complete!";
+
+  $("finishMessage").textContent =
+    "You finished all four activities. Fantastic work!";
+
+  $("totalTime").textContent =
+    "Total: " + formatTime(total);
+
+  $("finishDetail").innerHTML =
+    completedTimes.map((milliseconds,index) => `
+      <div class="result-item ${milliseconds===fastest ? "fastest" : ""}">
+        Activity ${index+1}
+        ${milliseconds===fastest ? " 🏆 FASTEST" : ""}
+        <strong>${formatTime(milliseconds)}</strong>
+      </div>
+    `).join("");
+
+  $("replayBtn").textContent =
+    "Play " + seasons[currentSeason].label + " Again ↻";
+
+  showScreen(finish);
+}
+
+/* NAVIGATION */
+
+function goHome() {
+  stopActivityTimers();
+  showScreen(home);
+}
+
+/* BUTTONS */
+
+$("checkBtn").addEventListener("click",checkAnswer);
+
+$("nextBtn").addEventListener("click",nextActivity);
+
+$("correctNextBtn").addEventListener("click",nextActivity);
+
+$("clearBtn").addEventListener("click",clearAnswer);
+
+$("homeBtn").addEventListener("click",goHome);
+
+$("finishHomeBtn").addEventListener("click",goHome);
+
+$("replayBtn").addEventListener("click",() => {
+  startSeason(lastSeason);
+});
+
+/* START */
+
+makeHome();
+</script>
+
+</body>
+</html>
