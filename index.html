@@ -78,38 +78,57 @@ button { font:inherit; cursor:pointer; }
   text-shadow:3px 4px white;
 }
 
+/* FOUR LARGE SEASON CIRCLES IN ONE HORIZONTAL ROW */
+
 .season-grid {
-  display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:clamp(10px,2vw,25px);
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:nowrap !important;
+  justify-content:space-evenly;
   align-items:center;
-  justify-items:center;
+  gap:25px;
+  width:100%;
+  max-width:1400px;
+  margin:35px auto 0;
+  overflow-x:auto;
+  padding:15px 10px 25px;
 }
 
-.season-button {
-  width:100%;
-  max-width:310px;
-  aspect-ratio:1;
+.season-grid .season-button {
+  width:300px !important;
+  height:300px !important;
+  min-width:300px !important;
+  min-height:300px !important;
+  max-width:300px !important;
+  max-height:300px !important;
+  flex:0 0 300px !important;
+
   border:0;
   border-radius:50%;
   padding:0;
   background:transparent;
+
   display:flex;
   align-items:center;
   justify-content:center;
+
+  cursor:pointer;
   transition:transform .2s;
   filter:drop-shadow(0 12px 12px #59718a45);
 }
 
-.season-button:hover {
-  transform:scale(1.09) rotate(-2deg);
-}
-
-.season-button img {
-  width:100%;
-  height:100%;
+.season-grid .season-button img {
+  display:block;
+  width:100% !important;
+  height:100% !important;
+  max-width:none !important;
+  max-height:none !important;
   object-fit:contain;
   pointer-events:none;
+}
+
+.season-grid .season-button:hover {
+  transform:scale(1.06);
 }
 
 .season-name { display:none; }
@@ -306,7 +325,7 @@ button { font:inherit; cursor:pointer; }
   object-fit:contain;
 }
 
-/* WORD RECTANGLES */
+/* WORD RECTANGLE */
 
 .word-pool {
   position:relative;
@@ -339,8 +358,8 @@ button { font:inherit; cursor:pointer; }
   line-height:1.12;
   box-shadow:0 5px 0 #dce7f0,0 7px 13px #516b8420;
   text-align:center;
-  width:calc(23% - 14px);
-  max-width:calc(23% - 14px);
+  width:calc(29% - 14px);
+  max-width:calc(29% - 14px);
   min-height:52px;
   display:flex;
   align-items:center;
@@ -351,19 +370,21 @@ button { font:inherit; cursor:pointer; }
   will-change:left,top,transform;
 }
 
-.word-chip:nth-child(3n) {
-  background:#fff6d9;
-  border-color:#efd78b;
+/* WORD CATEGORY COLORS */
+
+.word-chip.season-word {
+  background:#dff2ff;
+  border-color:#8fc8ed;
 }
 
-.word-chip:nth-child(3n+1) {
-  background:#eff9ff;
-  border-color:#b9d9ee;
+.word-chip.weather-word {
+  background:#ffe5ef;
+  border-color:#eeaec8;
 }
 
-.word-chip:nth-child(3n+2) {
-  background:#fff0f6;
-  border-color:#edc4d5;
+.word-chip.verb-word {
+  background:#fff1bd;
+  border-color:#e8c65c;
 }
 
 .word-chip.used {
@@ -572,11 +593,10 @@ button { font:inherit; cursor:pointer; }
 
 @media(max-width:850px) {
   .season-grid {
-    grid-template-columns:repeat(2,minmax(120px,1fr));
-    gap:12px;
+    justify-content:flex-start;
+    gap:20px;
   }
 
-  .season-button { max-width:280px; }
   .topbar { padding-right:0; }
 
   .instruction-row { align-items:flex-start; }
@@ -588,13 +608,13 @@ button { font:inherit; cursor:pointer; }
   }
 
   .word-pool {
-    min-height:520px;
+    min-height:600px;
     padding:10px;
   }
 
   .word-chip {
-    width:calc(38% - 10px);
-    max-width:calc(38% - 10px);
+    width:calc(46% - 10px);
+    max-width:calc(46% - 10px);
     font-size:27px;
     padding:8px 7px;
   }
@@ -611,20 +631,19 @@ button { font:inherit; cursor:pointer; }
   }
 
   .word-pool {
-    min-height:560px;
+    min-height:650px;
     padding:8px;
   }
 
   .word-chip {
-    width:calc(38% - 8px);
-    max-width:calc(38% - 8px);
+    width:calc(46% - 8px);
+    max-width:calc(46% - 8px);
     font-size:25px;
     padding:7px 6px;
     min-height:48px;
   }
 
   .result-list { grid-template-columns:1fr; }
-  .season-button { max-width:220px; }
   .home-title { font-size:40px; }
 }
 </style>
@@ -695,11 +714,11 @@ button { font:inherit; cursor:pointer; }
 
     <div class="instruction-row">
 
-      <div class="pattern">
+      <div class="pattern" id="sentencePattern">
         I like <span class="blank" data-slot="0">________</span>
         because it's <span class="blank" data-slot="1">________</span>.
         <br>
-        I can <span class="blank" data-slot="2">________________</span>.
+        I can <span class="blank" data-slot="2">________</span>.
       </div>
 
       <div class="reference-box">
@@ -833,7 +852,7 @@ const finish = $("finish");
 
 let currentSeason = "winter";
 let activityIndex = 0;
-let chosen = [null,null,null];
+let chosen = [];
 let usedWords = new Set();
 let startedAt = 0;
 let ticker = null;
@@ -1008,7 +1027,6 @@ function previewCurrentActivity() {
 
   showScreen(intro);
 
-  // Keep the picture on screen for five seconds every time.
   introTimer = setTimeout(() => {
     loadActivity();
   },5000);
@@ -1066,7 +1084,8 @@ function loadActivity() {
   const season = seasons[currentSeason];
   const activity = season.activities[activityIndex];
 
-  chosen = [null,null,null];
+  const activityWords = activity.action.split(/\s+/);
+  chosen = Array(activityWords.length + 2).fill(null);
   usedWords = new Set();
   isCorrect = false;
 
@@ -1089,12 +1108,19 @@ function loadActivity() {
 
   $("correctFlash").style.display = "none";
 
+  const pattern = $("sentencePattern");
+
+  pattern.innerHTML =
+    `I like <span class="blank" data-slot="0">________</span> ` +
+    `because it's <span class="blank" data-slot="1">________</span>.<br>` +
+    `I can ` +
+    activityWords.map((word,index) =>
+      `<span class="blank" data-slot="${index+2}">________</span>`
+    ).join(" ") +
+    `.`;
+
   document.querySelectorAll(".blank").forEach((slot,index) => {
-    slot.textContent =
-      index === 2 ? "________________" : "________";
-
     slot.classList.remove("filled");
-
     slot.onclick = () => removeSlot(index);
   });
 
@@ -1106,10 +1132,8 @@ function loadActivity() {
 
   renderPool(activity.action);
 
-  // The answering timer begins after the five-second preview.
   startTimer();
 
-  // Words move for three seconds, then stop.
   startWordJumble();
 }
 
@@ -1122,41 +1146,36 @@ function renderPool(correctActivity) {
   pool.classList.remove("ready");
   pool.classList.add("jumbling");
 
-  // Add one extra activity verb as a distractor.
-  // It is chosen from the other activities in the same season.
-  const extraVerb = shuffle(
-    seasons[currentSeason].activities
-      .filter(activity => activity.action !== correctActivity)
-      .map(activity => activity.action)
-  )[0];
+  // Every activity phrase is split into individual words.
+  // No other activity choices are added.
+  const activityWords = correctActivity.split(/\s+/);
 
   const words = shuffle([
-    ...seasonWords,
-    ...temperatureWords,
-    correctActivity,
-    extraVerb
+    ...seasonWords.map(word => ({word,category:"season-word"})),
+    ...temperatureWords.map(word => ({word,category:"weather-word"})),
+    ...activityWords.map(word => ({word,category:"verb-word"}))
   ]);
 
-  words.forEach(word => {
+  words.forEach(item => {
     const button = document.createElement("button");
 
-    button.className = "word-chip";
-    button.textContent = word;
-    button.dataset.word = word;
+    button.className = "word-chip " + item.category;
+    button.textContent = item.word;
+    button.dataset.word = item.word;
 
     button.addEventListener("click",() => {
       if (isCorrect || wordsAreMoving || !pool.classList.contains("ready")) {
         return;
       }
 
-      if (usedWords.has(word)) return;
+      if (usedWords.has(button)) return;
 
       const emptySlot = chosen.findIndex(value => value === null);
 
       if (emptySlot === -1) return;
 
-      chosen[emptySlot] = word;
-      usedWords.add(word);
+      chosen[emptySlot] = item.word;
+      usedWords.add(button);
 
       button.classList.add("used");
 
@@ -1185,11 +1204,10 @@ function startWordJumble() {
     const poolHeight = pool.clientHeight - 28;
     const isMobile = window.innerWidth <= 850;
     const columns = isMobile ? 2 : 3;
-    const rows = isMobile ? 5 : 4;
+    const rows = Math.ceil(chips.length / columns);
     const cellWidth = poolWidth / columns;
     const cellHeight = poolHeight / rows;
 
-    // Shuffle the available spaces so every word travels to a new area.
     const spaces = shuffle(
       Array.from({length:columns * rows},(_,index) => index)
     ).slice(0,chips.length);
@@ -1201,6 +1219,7 @@ function startWordJumble() {
 
       const x = 14 + column * cellWidth +
         (cellWidth - chip.offsetWidth) / 2;
+
       const y = 14 + row * cellHeight +
         (cellHeight - chip.offsetHeight) / 2;
 
@@ -1212,7 +1231,6 @@ function startWordJumble() {
     });
   }
 
-  // Place words in their first random arrangement.
   chips.forEach(chip => {
     chip.style.transition = "none";
   });
@@ -1226,7 +1244,6 @@ function startWordJumble() {
     });
   });
 
-  // Keep rearranging the words throughout the three-second jumble.
   jumbleTimer = setInterval(moveWords,300);
 
   jumbleEndTimer = setTimeout(() => {
@@ -1235,7 +1252,6 @@ function startWordJumble() {
     jumbleTimer = null;
     jumbleEndTimer = null;
 
-    // Freeze the words in their final positions.
     chips.forEach(chip => {
       chip.style.transition = "none";
     });
@@ -1267,21 +1283,22 @@ function removeSlot(index) {
   const oldWord = chosen[index];
 
   chosen[index] = null;
-  usedWords.delete(oldWord);
+
+  const usedChip = [...$("wordPool").querySelectorAll(".word-chip.used")]
+    .find(button => button.dataset.word === oldWord);
+
+  if (usedChip) {
+    usedChip.classList.remove("used");
+    usedWords.delete(usedChip);
+  }
 
   updateSlots();
-
-  [...$("wordPool").querySelectorAll(".word-chip")].forEach(button => {
-    if (button.dataset.word === oldWord) {
-      button.classList.remove("used");
-    }
-  });
 }
 
 function clearAnswer() {
   if (isCorrect || wordsAreMoving) return;
 
-  chosen = [null,null,null];
+  chosen = Array(chosen.length).fill(null);
   usedWords.clear();
 
   updateSlots();
@@ -1353,7 +1370,7 @@ function checkAnswer() {
   const correctAnswer = [
     currentSeason,
     temperatures[currentSeason],
-    activity.action
+    ...activity.action.split(/\s+/)
   ];
 
   const answerIsCorrect = chosen.every(
@@ -1401,7 +1418,6 @@ function nextActivity() {
   if (activityIndex < 3) {
     activityIndex++;
 
-    // Every new activity starts with its own five-second picture preview.
     previewCurrentActivity();
 
   } else {
